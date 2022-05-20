@@ -32,7 +32,7 @@ public class DQuery {
         + ") {\n"
         + getFunction().buildFunctionString()
         + "{\n"
-        //        + DGraphQueryUtils.convertQueryMapToField(getQueryMap())
+        + DgraphQueryUtils.convertQueryMapToField(getQueryMap())
         + "}\n}";
   }
 }

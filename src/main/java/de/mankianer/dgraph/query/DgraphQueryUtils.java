@@ -60,16 +60,11 @@ public class DgraphQueryUtils {
       List<Field> allFields = instance.getAllFields();
       allFields.forEach(
           field -> {
+            if (field.getName().startsWith("_")) return;
             if (Arrays.stream(field.getDeclaredAnnotations())
-                .filter(
+                .anyMatch(
                     annotation ->
-                        "JsonIgnore"
-                            .equals(
-                                annotation
-                                    .annotationType()
-                                    .getSimpleName())) // TODO JsonIgnore durch eigene ersetzten
-                .findFirst()
-                .isPresent()) {
+                        "JsonIgnore".equals(annotation.annotationType().getSimpleName()))) {
               return;
             }
             Class<?> fieldClass = convertFieldToClass(field);

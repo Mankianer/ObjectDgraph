@@ -24,6 +24,7 @@ class DgraphQueryUtilsTest {
     full.put("object2", empty);
     full.put("object3", object3);
     full.put("object4", object4);
+    full.put("null", null);
 
       assertEquals("""
                  object2
@@ -32,6 +33,7 @@ class DgraphQueryUtilsTest {
                  object1
                  {
                  }
+                 null
                  object4
                  {
                  object1
@@ -57,5 +59,29 @@ class DgraphQueryUtilsTest {
                  {
                  }
                  """, DgraphQueryUtils.convertQueryMapToField(full));
+  }
+
+  @Test
+  void getFieldMapSimpleTest(){
+    HashMap<String, Map> map = new HashMap<>();
+    map.put("uid", null);
+    assertEquals(map, DgraphQueryUtils.getFieldMap(TestEntitySimple.class));
+  }
+
+  @Test
+  void getFieldMapTest(){
+    HashMap<String, Map> map = new HashMap<>();
+    map.put("uid", null);
+    map.put("aBoolean", null);
+    map.put("aString", null);
+    map.put("anInt", null);
+    map.put("aDouble", null);
+
+    HashMap<String, Map> simple = new HashMap<>();
+    simple.put("uid", null);
+    map.put("aTestEntity", simple);
+    map.put("aList", simple);
+
+    assertEquals(map, DgraphQueryUtils.getFieldMap(TestEntity.class));
   }
 }

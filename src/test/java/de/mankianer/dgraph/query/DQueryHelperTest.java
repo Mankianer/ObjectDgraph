@@ -57,4 +57,32 @@ class DQueryHelperTest {
              }
              }""", queryString);
   }
+
+  @Test
+  void createFindByAndFilterFunctionsQuery() {
+    DQueryFilterFunction filterFunction = DQueryFilterFunctionUid.builder().fieldName("uid").paramName("uid").build();
+    DQueryFilterFunction filterFunction2 = DQueryHelper.getFieldEqualParamFilterFunction("aString", "pString", DGraphType.STRING);
+    DQueryFilterFunction filterFunction3 = DQueryHelper.getFieldEqualParamFilterFunction("aInt", "pInt", DGraphType.INT);
+    String queryString =
+        DQueryHelper.createFindByAndFilterFunctionsQuery(DgraphQueryUtils.getFieldMap(TestEntity.class), filterFunction, filterFunction2, filterFunction3)
+            .buildQueryString();
+    assertEquals("""
+            query findFilters($uid: string, $pString: string, $pInt: int) {
+            findFilters (func: uid($uid)) @filter( eq(aString, $pString) AND eq(aInt, $pInt)){
+            aBoolean
+            uid
+            aString
+            aList
+            {
+            uid
+            }
+            anInt
+            aDouble
+            aTestEntity
+            {
+            uid
+            }
+            }
+            }""", queryString);
+  }
 }

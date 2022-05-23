@@ -2,6 +2,8 @@ package de.mankianer.dgraph.query;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,4 +86,16 @@ class DgraphQueryUtilsTest {
 
     assertEquals(map, DgraphQueryUtils.getFieldMap(TestEntity.class));
   }
+
+  @Test
+  void findDGraphTypeTest(){
+    assertEquals(DGraphType.STRING, DgraphQueryUtils.findDGraphType(String.class));
+    assertEquals(DGraphType.INT, DgraphQueryUtils.findDGraphType(Integer.class));
+    assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(Float.class));
+    assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(Double.class));
+    assertEquals(DGraphType.BOOLEAN, DgraphQueryUtils.findDGraphType(Boolean.class));
+    assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDGraphType(LocalDateTime.class));
+    assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDGraphType(LocalDate.class));
+    assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDGraphType(TestEntitySimple.class));
+}
 }

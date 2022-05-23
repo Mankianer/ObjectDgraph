@@ -90,7 +90,9 @@ public class DgraphQueryUtils {
 
   /** Maps a Class<?> to a DGraphType for Query */
   public static DGraphType findDGraphType(Class<?> clazz) {
-    if (clazz.equals(Integer.class)) {
+    if (clazz.equals(String.class)) {
+      return DGraphType.STRING;
+    } else if (clazz.equals(Integer.class)) {
       return DGraphType.INT;
     } else if (clazz.equals(Float.class) || clazz.equals(Double.class)) {
       return DGraphType.FLOAT;

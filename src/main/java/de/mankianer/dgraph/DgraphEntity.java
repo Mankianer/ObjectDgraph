@@ -1,5 +1,6 @@
 package de.mankianer.dgraph;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class DgraphEntity {
 
   private String uid;
 
-  //    @JsonIgnore
+  @JsonIgnore
   public List<Field> getAllFields() {
     List<Field> declaredFields = new ArrayList<>();
     declaredFields.addAll(List.of(getClass().getDeclaredFields()));

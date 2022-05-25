@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 class DgraphQueryUtilsTest {
 
@@ -110,9 +109,8 @@ class DgraphQueryUtilsTest {
     assertEquals(DGraphType.INT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("anInt", TestEntity.class));
     assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aDouble", TestEntity.class));
     assertEquals(DGraphType.BOOLEAN, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aBoolean", TestEntity.class));
-    assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aDateTime", TestEntity.class));
     assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aTestEntity", TestEntity.class));
     assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aList", TestEntity.class));
-    assertThrowsExactly(NoSuchFieldException.class, () -> DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aString", TestEntitySimple.class));
+    assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("missing", TestEntity.class));
   }
 }

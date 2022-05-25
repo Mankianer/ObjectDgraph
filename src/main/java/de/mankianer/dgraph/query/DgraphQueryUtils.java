@@ -93,11 +93,14 @@ public class DgraphQueryUtils {
   public static DGraphType findDGraphType(Class<?> clazz) {
     if (clazz.equals(String.class)) {
       return DGraphType.STRING;
-    } else if (clazz.equals(Integer.class)) {
+    } else if (clazz.equals(Integer.class) || clazz.equals(int.class)) {
       return DGraphType.INT;
-    } else if (clazz.equals(Float.class) || clazz.equals(Double.class)) {
+    } else if (clazz.equals(Float.class)
+        || clazz.equals(float.class)
+        || clazz.equals(Double.class)
+        || clazz.equals(double.class)) {
       return DGraphType.FLOAT;
-    } else if (clazz.equals(Boolean.class)) {
+    } else if (clazz.equals(Boolean.class) || clazz.equals(boolean.class)) {
       return DGraphType.BOOLEAN;
     } else if (clazz.equals(LocalDateTime.class) || clazz.equals(LocalDate.class)) {
       return DGraphType.DATETIME;
@@ -106,10 +109,12 @@ public class DgraphQueryUtils {
   }
 
   public static DGraphType findDgraphTypeByFieldNameAndClass(
-      String fieldName, Class<? extends DgraphEntity> clazz) throws NoSuchFieldException {
+      String fieldName, Class<? extends DgraphEntity> clazz) {
     try {
       Field field = clazz.getDeclaredConstructor().newInstance().getAllFieldMap().get(fieldName);
-      return findDGraphType(convertFieldToClass(field));
+      if (field != null) {
+        return findDGraphType(convertFieldToClass(field));
+      }
     } catch (InstantiationException
         | IllegalAccessException
         | NoSuchMethodException

@@ -32,6 +32,7 @@ test {
 }
 jacocoTestReport {
     dependsOn test
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
     reports {
         xml.required = false
         csv.required = false

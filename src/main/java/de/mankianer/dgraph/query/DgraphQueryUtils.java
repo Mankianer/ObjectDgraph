@@ -4,6 +4,7 @@ import de.mankianer.dgraph.DgraphEntity;
 import lombok.extern.log4j.Log4j2;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -100,6 +101,20 @@ public class DgraphQueryUtils {
       return DGraphType.BOOLEAN;
     } else if (clazz.equals(LocalDateTime.class) || clazz.equals(LocalDate.class)) {
       return DGraphType.DATETIME;
+    }
+    return DGraphType.DEFAULT;
+  }
+
+  public static DGraphType findDgraphTypeByFieldNameAndClass(
+      String fieldName, Class<? extends DgraphEntity> clazz) throws NoSuchFieldException {
+    try {
+      Field field = clazz.getDeclaredConstructor().newInstance().getAllFieldMap().get(fieldName);
+      return findDGraphType(convertFieldToClass(field));
+    } catch (InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException e) {
+      log.error("Error while parsing DGraphEntity to DgraphQuery!", e);
     }
     return DGraphType.DEFAULT;
   }

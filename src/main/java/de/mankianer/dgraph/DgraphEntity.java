@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +23,21 @@ public class DgraphEntity {
     do {
       superclass = superclass.getSuperclass();
       declaredFields.addAll(List.of(superclass.getDeclaredFields()));
+    } while (!DgraphEntity.class.getName().equals(superclass.getName())); // better head while?
+
+    return declaredFields;
+  }
+
+  @JsonIgnore
+  public Map<String, Field> getAllFieldMap() {
+    Map<String, Field> declaredFields = new HashMap<>();
+    Arrays.stream(getClass().getDeclaredFields())
+        .forEach(field -> declaredFields.put(field.getName(), field));
+    Class<?> superclass = getClass();
+    do {
+      superclass = superclass.getSuperclass();
+      Arrays.stream(superclass.getDeclaredFields())
+          .forEach(field -> declaredFields.put(field.getName(), field));
     } while (!DgraphEntity.class.getName().equals(superclass.getName())); // better head while?
 
     return declaredFields;

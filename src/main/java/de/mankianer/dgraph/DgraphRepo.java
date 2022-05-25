@@ -1,29 +1,43 @@
 package de.mankianer.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
-import io.dgraph.DgraphClient;
+import de.mankianer.dgraph.query.DQuery;
+import de.mankianer.dgraph.query.DQueryHelper;
+import io.dgraph.AsyncTransaction;
+import io.dgraph.DgraphAsyncClient;
 import io.dgraph.DgraphProto;
-import io.dgraph.Transaction;
 import lombok.extern.log4j.Log4j2;
 
+import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 // TODO GEO and Default findByValue
 @Log4j2
 public class DgraphRepo<T extends DgraphEntity> {
 
-  private final DgraphClient dgraphClient;
+  private final DgraphAsyncClient dgraphClient;
+  private final Class<T> actualTypeArgument;
   private ObjectMapper saveMapper;
+  private ObjectMapper loadMapper;
 
-  public DgraphRepo(DgraphClient dgraphClient) {
+  public DgraphRepo(DgraphAsyncClient dgraphClient) {
     this.dgraphClient = dgraphClient;
+    actualTypeArgument =
+        (Class<T>)
+            ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     saveMapper = new ObjectMapper();
+    loadMapper = new ObjectMapper();
   }
 
   public T saveToDgraph(T entity) {
-    Transaction txn = dgraphClient.newTransaction();
+    AsyncTransaction txn = dgraphClient.newTransaction();
     try {
       String json = "{}";
       try {
@@ -37,15 +51,16 @@ public class DgraphRepo<T extends DgraphEntity> {
               .setCommitNow(true)
               .build();
 
-      DgraphProto.Response response = txn.mutate(mutation);
-      String topLevelUid =
-          response.getUidsMap().entrySet().stream()
-              .sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
-              .map(entry -> entry.getValue())
-              .findFirst()
-              .orElse(null);
+      String topLevelUid = "";
+      //      DgraphProto.Response response = txn.mutate(mutation);
+      //      String topLevelUid =
+      //          response.getUidsMap().entrySet().stream()
+      //              .sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
+      //              .map(entry -> entry.getValue())
+      //              .findFirst()
+      //              .orElse(null);
       if (topLevelUid != null) {
-        entity = findByUid(topLevelUid);
+        entity = findByUid(topLevelUid).findAny().get();
       }
       return entity;
     } finally {
@@ -53,8 +68,36 @@ public class DgraphRepo<T extends DgraphEntity> {
     }
   }
 
-  public T findByUid(String uid) {
-    return null;
+  public Stream<T> findByUid(String uid) {
+    DQuery query = DQueryHelper.createFindByUidQuery(actualTypeArgument);
+
+    query.getFunction().getParamList();
+
+    AsyncTransaction txn = dgraphClient.newReadOnlyTransaction();
+    CompletableFuture<DgraphProto.Response> responseCompletableFuture =
+        txn.queryWithVars("", Map.of());
+    Stream<T> ret =
+        Stream.generate(
+                () -> {
+                  while (!responseCompletableFuture.isDone()) {}
+
+                  try {
+                    DgraphProto.Response response = responseCompletableFuture.get();
+                    return loadMapper.readValue(
+                        response.getJson().toStringUtf8(), actualTypeArgument);
+                  } catch (InterruptedException e) {
+                    log.error("Error while waiting for response", e);
+                  } catch (ExecutionException e) {
+                    log.error("Error while waiting for response", e);
+                  } catch (JsonMappingException e) {
+                    log.error("Error while waiting for response", e);
+                  } catch (JsonProcessingException e) {
+                    log.error("Error while waiting for response", e);
+                  }
+                  return null;
+                })
+            .limit(1);
+    return ret;
   }
 
   public T findByValue(String name, String value) {

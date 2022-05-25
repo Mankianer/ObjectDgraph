@@ -1,5 +1,6 @@
 package de.mankianer.dgraph.query;
 
+import de.mankianer.dgraph.DgraphEntity;
 import de.mankianer.dgraph.query.DQueryChainedFilterFunction.FilterConnection;
 import de.mankianer.dgraph.query.DQueryFilter.DQueryFilterBuilder;
 import de.mankianer.dgraph.query.DQueryFilterFunctionCompare.CompareTypes;
@@ -16,12 +17,13 @@ public class DQueryHelper {
    * @return a Query for request Dgraph
    */
   public static DQuery createFindByAndFilterFunctionsQuery(
-      Map<String, Map> queryFieldMap,
+      Class<? extends DgraphEntity> clazz,
       @NonNull DQueryFilterFunction rootFilterFunction,
       DQueryFilterFunction... filterFunctions) {
     DQueryFunction function =
         getQueryFunctionByFunctionNameAndAndFilterFunctions(
             "findFilters", rootFilterFunction, filterFunctions);
+    Map<String, Map> queryFieldMap = DgraphQueryUtils.getFieldMap(clazz);
     return DQuery.builder()
         .queryname("findFilters")
         .queryMap(queryFieldMap)
@@ -36,19 +38,32 @@ public class DQueryHelper {
    * @return a Query for request Dgraph
    */
   public static DQuery createFindByValueQuery(
-      String filedName, String paramName, DGraphType paramType, Map<String, Map> queryFieldMap) {
+      String filedName,
+      String paramName,
+      DGraphType paramType,
+      Class<? extends DgraphEntity> clazz) {
     DQueryFilterFunction filterFunction =
         getFieldEqualParamFilterFunction(filedName, paramName, paramType);
-    return createFindByAndFilterFunctionsQuery(queryFieldMap, filterFunction);
+    return createFindByAndFilterFunctionsQuery(clazz, filterFunction);
+  }
+
+  /**
+   * @param filedName searching DgraphEntity field
+   * @param clazz targeted DgraphEntity
+   * @return a Query for request Dgraph
+   */
+  public static DQuery createFindByValueQuery(
+      Class<? extends DgraphEntity> clazz, String filedName) {
+    return createFindByValueQuery(filedName, filedName, DGraphType.STRING, clazz);
   }
 
   /**
    * @param queryFieldMap values to be used in Query
    * @return a Query for request Dgraph
    */
-  public static DQuery createFindByUidQuery(Map<String, Map> queryFieldMap) {
+  public static DQuery createFindByUidQuery(Class<? extends DgraphEntity> clazz) {
     DQueryFilterFunction filterFunction = getUidFilterFunction();
-    return createFindByAndFilterFunctionsQuery(queryFieldMap, filterFunction);
+    return createFindByAndFilterFunctionsQuery(clazz, filterFunction);
   }
 
   private static DQueryFunction getQueryFunctionByRootFilterAndFilterAndFunctionName(

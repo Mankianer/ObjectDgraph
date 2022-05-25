@@ -8,12 +8,13 @@ class DQueryHelperTest {
 
   @Test
   void createFindByValueQuery() {
+    DQuery query = DQueryHelper.createFindByValueQuery(
+            "aString",
+            "pString",
+            DGraphType.STRING,
+            TestEntity.class);
     String queryString =
-        DQueryHelper.createFindByValueQuery(
-                "aString",
-                "pString",
-                DGraphType.STRING,
-                DgraphQueryUtils.getFieldMap(TestEntity.class))
+        query
             .buildQueryString();
     assertEquals("""
             query findFilters($pString: string) {
@@ -37,7 +38,8 @@ class DQueryHelperTest {
 
   @Test
   void createFindByUidQuery() {
-    String queryString = DQueryHelper.createFindByUidQuery( DgraphQueryUtils.getFieldMap(TestEntity.class)).buildQueryString();
+    DQuery query = DQueryHelper.createFindByUidQuery(TestEntity.class);
+    String queryString = query.buildQueryString();
     assertEquals("""
              query findFilters($uid: string) {
              findFilters (func: uid($uid)) {
@@ -64,7 +66,7 @@ class DQueryHelperTest {
     DQueryFilterFunction filterFunction2 = DQueryHelper.getFieldEqualParamFilterFunction("aString", "pString", DGraphType.STRING);
     DQueryFilterFunction filterFunction3 = DQueryHelper.getFieldEqualParamFilterFunction("aInt", "pInt", DGraphType.INT);
     String queryString =
-        DQueryHelper.createFindByAndFilterFunctionsQuery(DgraphQueryUtils.getFieldMap(TestEntity.class), filterFunction, filterFunction2, filterFunction3)
+        DQueryHelper.createFindByAndFilterFunctionsQuery(TestEntity.class, filterFunction, filterFunction2, filterFunction3)
             .buildQueryString();
     assertEquals("""
             query findFilters($uid: string, $pString: string, $pInt: int) {

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 class DgraphQueryUtilsTest {
 
@@ -91,11 +92,27 @@ class DgraphQueryUtilsTest {
   void findDGraphTypeTest(){
     assertEquals(DGraphType.STRING, DgraphQueryUtils.findDGraphType(String.class));
     assertEquals(DGraphType.INT, DgraphQueryUtils.findDGraphType(Integer.class));
+    assertEquals(DGraphType.INT, DgraphQueryUtils.findDGraphType(int.class));
     assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(Float.class));
+    assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(float.class));
     assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(Double.class));
+    assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDGraphType(double.class));
     assertEquals(DGraphType.BOOLEAN, DgraphQueryUtils.findDGraphType(Boolean.class));
+    assertEquals(DGraphType.BOOLEAN, DgraphQueryUtils.findDGraphType(boolean.class));
     assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDGraphType(LocalDateTime.class));
     assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDGraphType(LocalDate.class));
     assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDGraphType(TestEntitySimple.class));
-}
+  }
+
+  @Test
+  void findDgraphTypeByFieldNameAndClass() throws NoSuchFieldException {
+    assertEquals(DGraphType.STRING, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aString", TestEntity.class));
+    assertEquals(DGraphType.INT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("anInt", TestEntity.class));
+    assertEquals(DGraphType.FLOAT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aDouble", TestEntity.class));
+    assertEquals(DGraphType.BOOLEAN, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aBoolean", TestEntity.class));
+    assertEquals(DGraphType.DATETIME, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aDateTime", TestEntity.class));
+    assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aTestEntity", TestEntity.class));
+    assertEquals(DGraphType.DEFAULT, DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aList", TestEntity.class));
+    assertThrowsExactly(NoSuchFieldException.class, () -> DgraphQueryUtils.findDgraphTypeByFieldNameAndClass("aString", TestEntitySimple.class));
+  }
 }

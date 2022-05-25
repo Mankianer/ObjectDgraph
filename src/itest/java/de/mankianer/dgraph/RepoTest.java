@@ -1,6 +1,6 @@
 package de.mankianer.dgraph;
 
-import io.dgraph.DgraphClient;
+import io.dgraph.DgraphAsyncClient;
 import io.dgraph.DgraphGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RepoTest {
 
-  private static DgraphClient dgraphClient;
+  private static DgraphAsyncClient dgraphClient;
   private DgraphRepo<TestEntity> repo;
 
   @BeforeAll
@@ -20,7 +20,7 @@ public class RepoTest {
     ManagedChannel channel =
         ManagedChannelBuilder.forAddress("localhost", 9080).usePlaintext().build();
     DgraphGrpc.DgraphStub stub = DgraphGrpc.newStub(channel);
-    dgraphClient = new DgraphClient(stub);
+    dgraphClient = new DgraphAsyncClient(stub);
   }
 
   @BeforeEach

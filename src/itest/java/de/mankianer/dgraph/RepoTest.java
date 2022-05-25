@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RepoTest {
@@ -25,7 +26,7 @@ public class RepoTest {
 
   @BeforeEach
   public void beforeEach() {
-    repo = new DgraphRepo<>(dgraphClient);
+    repo = new DgraphRepo<>(dgraphClient, TestEntity.class);
   }
 
   @Test
@@ -37,7 +38,29 @@ public class RepoTest {
   public void SaveSimpleTest() {
     TestEntity entity = new TestEntity();
     entity.setAString("test");
-    TestEntity testEntity = repo.saveToDgraph(entity);
-    assertNotNull(testEntity.getUid());
+    long timeout = 3000;
+    Long[] start = {System.currentTimeMillis()};
+    repo.saveToDgraph(
+        entity,
+        e -> {
+          assertNotNull(e.get().getUid());
+          start[0] = 0l;
+        });
+    while (System.currentTimeMillis() - start[0] < timeout) {}
+    assertEquals(0l, start[0], "Save to dgraph timed out");
+  }
+
+  @Test
+  public void findByUID() {
+    long timeout = 3000;
+    Long[] start = {System.currentTimeMillis()};
+    repo.findByUid(
+        "0x4e21",
+        e -> {
+          assertNotNull(e.get().getUid());
+          start[0] = 0l;
+        });
+    while (System.currentTimeMillis() - start[0] < timeout) {}
+    assertEquals(0l, start[0], "Save to dgraph timed out");
   }
 }

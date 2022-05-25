@@ -54,7 +54,11 @@ public class DQueryHelper {
    */
   public static DQuery createFindByValueQuery(
       Class<? extends DgraphEntity> clazz, String filedName) {
-    return createFindByValueQuery(filedName, filedName, DGraphType.STRING, clazz);
+    return createFindByValueQuery(
+        filedName,
+        filedName,
+        DgraphQueryUtils.findDgraphTypeByFieldNameAndClass(filedName, clazz),
+        clazz);
   }
 
   /**

@@ -8,17 +8,13 @@ class DQueryHelperTest {
 
   @Test
   void createFindByValueQuery() {
-    DQuery query = DQueryHelper.createFindByValueQuery(
-            "aString",
-            "pString",
-            DGraphType.STRING,
-            TestEntity.class);
+    DQuery query = DQueryHelper.createFindByValueQuery(TestEntity.class, "aString" );
     String queryString =
         query
             .buildQueryString();
     assertEquals("""
-            query findFilters($pString: string) {
-            findFilters (func: eq(aString, $pString)) {
+            query findFilters($aString: string) {
+            findFilters (func: eq(aString, $aString)) {
             aBoolean
             uid
             aString
